@@ -2,6 +2,14 @@ const mythx = require('./mythx')
 
 module.exports = function(embark) {
 
+	let contracts;
+
+	// Register for compilation results
+	embark.events.on("contracts:compiled:solc", (res) => {
+		console.log("contracts:compiled:solc", JSON.stringify(res));
+		contracts = res;
+	});
+
 	embark.registerConsoleCommand({
 		description: "Run MythX analysis",
 		matches: (cmd) => { 
@@ -21,7 +29,7 @@ module.exports = function(embark) {
 			embark.logger.info('cfg', JSON.stringify(cfg))
 			try {
 				embark.logger.info("verify process")
-		        const result = await mythx(cfg, embark)
+		        const result = await mythx(contracts, cfg, embark)
 		        embark.logger.info("result", result)
 		        /*
 		        if (returnCode === 0) {

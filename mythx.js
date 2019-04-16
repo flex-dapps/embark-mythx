@@ -8,7 +8,7 @@ const { MythXIssues } = require('./lib/issues2eslint');
 
 const defaultAnalyzeRateLimit = 4
 
-module.exports = async function analyse(cfg, embark) {
+module.exports = async function analyse(contracts, cfg, embark) {
 
     //embark.logger.debug("embark.config", embark.config)
     cfg.logger = embark.logger
@@ -42,24 +42,27 @@ module.exports = async function analyse(cfg, embark) {
     
     // Extract list of contracts passed in cli to verify
 
+    /*
     // Get list of JSON smart contract files from build directory
     console.log("embark.config.embarkConfig.generationDir", embark.config.buildDir)
     const contractFiles = mythXUtil.getContractFiles(embark.config.buildDir + "/contracts")
 
-    //embark.logger.debug("contractFiles", contractFiles)
+    embark.logger.debug("contractFiles", contractFiles)
 
     // Parse contracts
+    
     let contractObjects = contractFiles.map(filename => {
         const jsonFile = fs.readFileSync(filename, 'utf8')
         //console.log("contract object", jsonFile)
         return JSON.parse(jsonFile)
     })
+    */
 
-    console.log("contractObjects", contractObjects)
+    console.log("contracts", contracts)
 
     //TODO: Possibly need to rewrite the contract objects for MythX to understand
 
-    const submitObjects = mythXUtil.buildRequestData(contractObjects)
+    const submitObjects = mythXUtil.buildRequestData(contracts)
 
     const { objects, errors } = await doAnalysis(armletClient, cfg, submitObjects, limit)
 
@@ -73,7 +76,7 @@ module.exports = async function analyse(cfg, embark) {
 
 const doAnalysis = async (armletClient, config, contracts, contractNames = null, limit) => {
 
-    //console.log("contracts", contracts)
+    console.log("\ncontracts", contracts)
 
     const timeout = (config.timeout || 300) * 1000;
     const initialDelay = ('initial-delay' in config) ? config['initial-delay'] * 1000 : undefined;
