@@ -66,7 +66,7 @@ module.exports = async function analyse(contracts, cfg, embark) {
 
     const { objects, errors } = await doAnalysis(armletClient, cfg, submitObjects, limit)
 
-    console.log("objects", JSON.stringify(objects))
+    //console.log("objects", JSON.stringify(objects))
     console.log("errors", errors)
 
     const result = mythXUtil.doReport(cfg, objects, errors)
