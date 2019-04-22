@@ -6,7 +6,7 @@ module.exports = function(embark) {
 
 	// Register for compilation results
 	embark.events.on("contracts:compiled:solc", (res) => {
-		console.log("contracts:compiled:solc", JSON.stringify(res));
+		//console.log("contracts:compiled:solc", JSON.stringify(res));
 		contracts = res;
 	});
 
@@ -28,10 +28,10 @@ module.exports = function(embark) {
 			embark.logger.info('cmd', cmd)
 			embark.logger.info('cfg', JSON.stringify(cfg))
 			try {
-				embark.logger.info("verify process")
+				embark.logger.info("Running MythX analysis in background.")
 		        const result = await mythx(contracts, cfg, embark)
-		        embark.logger.info("result", result)
-		        /*
+		        //embark.logger.info("result", result)
+		        
 		        if (returnCode === 0) {
 		            return callback(null, "returnCode: " + returnCode)
 		        } else if (returnCode === 1) {
@@ -41,7 +41,7 @@ module.exports = function(embark) {
 		        	//TODO: Figure out how to use error with callback properly. 
 		            return callback(new Error("Unexpected Error: return value of `analyze` should be either 0 or 1."), null)
 		        }
-		        */
+		        
 		    } catch (e) {
 		    	embark.logger.error("error", e)
 		        return callback(e, "ERR: " + e.message)

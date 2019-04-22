@@ -4,13 +4,17 @@ const armlet = require('armlet')
 const fs = require('fs')
 const mythXUtil = require('./lib/mythXUtil');
 const asyncPool = require('tiny-async-pool');
-const { MythXIssues } = require('./lib/issues2eslint');
+const { MythXIssues, doReport } = require('./lib/issues2eslint');
 
 const defaultAnalyzeRateLimit = 4
 
 module.exports = async function analyse(contracts, cfg, embark) {
 
     //embark.logger.debug("embark.config", embark.config)
+
+    //console.log("embark.logger", embark.logger)
+    //console.log("JSON.stringify(embark.logger)", JSON.stringify(embark.logger))
+    //embark.logger.info("typeof embark.logger", typeof embark.logger)
     cfg.logger = embark.logger
     //embark.logger.info("embark", JSON.stringify(embark))
 
@@ -18,11 +22,11 @@ module.exports = async function analyse(contracts, cfg, embark) {
     const limit = cfg.limit || defaultAnalyzeRateLimit
 
     if (isNaN(limit)) {
-        console.log(`limit parameter should be a number; got ${limit}.`)
+        embark.logger.info(`limit parameter should be a number; got ${limit}.`)
         return 1
     }
     if (limit < 0 || limit > defaultAnalyzeRateLimit) {
-        console.log(`limit should be between 0 and ${defaultAnalyzeRateLimit}; got ${limit}.`)
+        embark.logger.info(`limit should be between 0 and ${defaultAnalyzeRateLimit}; got ${limit}.`)
         return 1
     }
 
@@ -38,49 +42,29 @@ module.exports = async function analyse(contracts, cfg, embark) {
     //TODO: Check contract names provided in options are respected
     //const contractNames = cfg._.length > 1 ? cfg._.slice(1, cfg._.length) : null
 
-    // Collect contracts ---
-    
-    // Extract list of contracts passed in cli to verify
-
-    /*
-    // Get list of JSON smart contract files from build directory
-    console.log("embark.config.embarkConfig.generationDir", embark.config.buildDir)
-    const contractFiles = mythXUtil.getContractFiles(embark.config.buildDir + "/contracts")
-
-    embark.logger.debug("contractFiles", contractFiles)
-
-    // Parse contracts
-    
-    let contractObjects = contractFiles.map(filename => {
-        const jsonFile = fs.readFileSync(filename, 'utf8')
-        //console.log("contract object", jsonFile)
-        return JSON.parse(jsonFile)
-    })
-    */
-
-    console.log("contracts", contracts)
-
-    //TODO: Possibly need to rewrite the contract objects for MythX to understand
+    //embark.logger.info("contracts", contracts)
 
     const submitObjects = mythXUtil.buildRequestData(contracts)
 
-    const { objects, errors } = await doAnalysis(armletClient, cfg, submitObjects, limit)
+    process.exit(0)
+    const { objects, errors } = await doAnalysis(armletClient, cfg, submitObjects, null, limit)
 
     //console.log("objects", JSON.stringify(objects))
-    console.log("errors", errors)
+    //embark.logger.info("errors", errors)
 
-    const result = mythXUtil.doReport(cfg, objects, errors)
-    console.log("result", result)
+    const result = doReport(cfg, objects, errors)
+    //embark.logger.info("result", result)
     return result
 }
 
 const doAnalysis = async (armletClient, config, contracts, contractNames = null, limit) => {
 
-    console.log("\ncontracts", contracts)
+    //config.logger.info("\ncontracts", contracts)
 
     const timeout = (config.timeout || 300) * 1000;
     const initialDelay = ('initial-delay' in config) ? config['initial-delay'] * 1000 : undefined;
-    const cacheLookup = ('cache-lookup' in config) ? config['cache-lookup'] : true;
+    //const cacheLookup = ('cache-lookup' in config) ? config['cache-lookup'] : true;
+    const cacheLookup = false
 
     const results = await asyncPool(limit, contracts, async buildObj => {
         
@@ -101,8 +85,12 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
 
         // request analysis to armlet.
         try {
-            console.log("analyzeOpts", JSON.stringify(analyzeOpts))
-            const {issues, status} = await armletClient.analyzeWithStatus(analyzeOpts);
+            //config.logger.info("analyzeOpts", JSON.stringify(analyzeOpts))
+            const armletResult = await armletClient.analyzeWithStatus(analyzeOpts);
+            //config.logger.info("armletResult", JSON.stringify(armletResult))
+            const {issues, status} = armletResult
+            //config.logger.info("issues", issues)
+            //config.logger.info("status", status)
             obj.uuid = status.uuid;
             if (config.debug) {
                 config.logger.debug(`${analyzeOpts.data.contractName}: UUID is ${status.uuid}`);
@@ -138,9 +126,12 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
                 return [(buildObj.contractName + ": ").yellow + errStr, null];
             } else {
                 return [(buildObj.contractName + ": ").red + errStr, null];
+
             }
         }
     });
+
+    //console.log("results", JSON.stringify(results))
 
     return results.reduce((accum, curr) => {
         const [ err, obj ] = curr;
