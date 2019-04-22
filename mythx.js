@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const armlet = require('armlet')
 const fs = require('fs')
+const yaml = require('js-yaml');
 const mythXUtil = require('./lib/mythXUtil');
 const asyncPool = require('tiny-async-pool');
 const { MythXIssues, doReport } = require('./lib/issues2eslint');
@@ -50,19 +51,25 @@ async function analyse(contracts, cfg, embark) {
         toSubmit.contracts = {}
         for (let [filename, contractObjects] of Object.entries(contracts.contracts)) {
             for (let [contractName, contract] of Object.entries(contractObjects)) {
-                if (cfg.contracts.indexOf(contractName) >= 0) {
+                if (cfg.contracts.indexOf(contractName) >= 0 && embark.pluginConfig.ignore.indexOf(contractName) == -1) {
                     //console.log("Adding to submit", contractName, contractObjects)
                     if(!toSubmit.contracts[filename]) {
                         toSubmit.contracts[filename] = {}
                     }
-                    toSubmit.contracts[filename][contractName] = contract ;
+                    toSubmit.contracts[filename][contractName] = contract;
                 }
             }
         }
     } else {
         toSubmit = contracts
     }
-        
+
+    // Stop here if no contracts are left
+    if(Object.keys(toSubmit.contracts).length === 0) {
+        embark.logger.info("No contracts to submit");
+        return 0;
+    }
+
     //embark.logger.info("toSubmit", toSubmit)
     const submitObjects = mythXUtil.buildRequestData(toSubmit)
 
@@ -77,15 +84,13 @@ async function analyse(contracts, cfg, embark) {
     return result
 }
 
-async function getStatus(cfg, embark) {
+async function getStatus(uuid, embark) {
 
     //embark.logger.debug("embark.config", embark.config)
 
     //console.log("embark.logger", embark.logger)
     //console.log("JSON.stringify(embark.logger)", JSON.stringify(embark.logger))
     //embark.logger.info("typeof embark.logger", typeof embark.logger)
-    cfg.logger = embark.logger
-    //embark.logger.info("embark", JSON.stringify(embark))
 
     // Connect to MythX via armlet
     const armletClient = new armlet.Client(
@@ -95,14 +100,12 @@ async function getStatus(cfg, embark) {
         ethAddress: process.env.MYTHX_ETH_ADDRESS,
     })
     
-    if (cfg.uuid) {
-        try {
-            const results = await armletClient.getIssues(config.uuid);
-            return ghettoReport(embark.logger.info, results);
-        } catch (err) {
-            embark.logger.warn(err);
-            return 1;
-        }
+    try {
+        const results = await armletClient.getIssues(uuid);
+        return ghettoReport(embark.logger.info, results);
+    } catch (err) {
+        embark.logger.warn(err);
+        return 1;
     }
 }
 
@@ -112,7 +115,7 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
 
     const timeout = (config.timeout || 300) * 1000;
     const initialDelay = ('initial-delay' in config) ? config['initial-delay'] * 1000 : undefined;
-    const cacheLookup = ('cache-lookup' in config) ? config['cache-lookup'] : true;
+    const noCacheLookup = ('no-cache-lookup' in config) ? config['no-cache-lookup'] : true;
 
     const results = await asyncPool(limit, contracts, async buildObj => {
         
@@ -120,34 +123,28 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
 
         let analyzeOpts = {
             clientToolName: 'embark-mythx',
-            noCacheLookup: !cacheLookup,
+            noCacheLookup,
             timeout,
             initialDelay
         };
 
         analyzeOpts.data = mythXUtil.cleanAnalyzeDataEmptyProps(obj.buildObj, config.debug, config.logger.debug);
-        analyzeOpts.data.analysisMode = analyzeOpts.mode || 'quick';
+        analyzeOpts.data.analysisMode = config.full ? "full" : "quick";
         if (config.debug > 1) {
             config.logger.debug("analyzeOpts: " + `${util.inspect(analyzeOpts, {depth: null})}`);
         }
 
         // request analysis to armlet.
         try {
-            config.logger.info("Submitting '" + obj.contractName + "' for analysis...")
-            const armletResult = await armletClient.analyzeWithStatus(analyzeOpts);
+            config.logger.info("Submitting '" + obj.contractName + "' for " + analyzeOpts.data.analysisMode + " analysis...")
+            const {issues, status} = await armletClient.analyzeWithStatus(analyzeOpts);
+            console.log("after analyze call")
             //config.logger.info("armletResult", JSON.stringify(armletResult))
-            const {issues, status} = armletResult
             //config.logger.info("issues", issues)
             //config.logger.info("status", status)
             obj.uuid = status.uuid;
-            if (config.debug) {
-                config.logger.debug(`${analyzeOpts.data.contractName}: UUID is ${status.uuid}`);
-                if (config.debug > 1) {
-                    config.logger.debug("issues: " + `${util.inspect(issues, {depth: null})}`);
-                    config.logger.debug("status: " + `${util.inspect(status, {depth: null})}`);
-                }
-            }
-
+            config.logger.info(`${analyzeOpts.data.contractName}: UUID is ${status.uuid}`);
+                
             if (status.status === 'Error') {
                 return [status, null];
             } else {

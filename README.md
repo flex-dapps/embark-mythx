@@ -20,5 +20,19 @@ embark-mythx:
 embark-mythx: MythX analysis found vulnerabilities.
 ```
 
+# Installation
+
+Add `embark-mythx` to the `plugins` section in your `embark.json`. To have the plugin permanently ignore one or multiple contracts, add them as array `ignore` to the configuration:
+
+```
+"plugins": {
+  "embark-mythx": {
+    "ignore": ["Ownable", "Migrations"]
+  }
+}
+``` 
+
 # Options
 
+`--full`, `-f` -- run full analysis instead of quick.
+`--debug`, `-d` -- print additional output.

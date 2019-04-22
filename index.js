@@ -48,15 +48,14 @@ module.exports = function(embark) {
 		        //embark.logger.info("result", result)
 		        
 		        if (returnCode === 0) {
-		            return callback(null, "returnCode: " + returnCode)
+		            return callback(null, "MythX analysis found no vulnerabilities.")
 		        } else if (returnCode === 1) {
-		        	embark.logger.error("\nMythX analysis found vulnerabilities.")
-		            return callback()
-		        } else {
-		        	//TODO: Figure out how to use error with callback properly. 
+		            return callback("MythX analysis found vulnerabilities!", null)
+		        } else if (returnCode === 2) {
+		            return callback("Internal MythX error encountered.", null)
+		        } else { 
 		            return callback(new Error("\nUnexpected Error: return value of `analyze` should be either 0 or 1."), null)
 		        }
-		        
 		    } catch (e) {
 		    	embark.logger.error("error", e)
 		        return callback(e, "ERR: " + e.message)
@@ -100,7 +99,7 @@ module.exports = function(embark) {
 			//embark.logger.info('cmdName.length === 1', cmdName.length === 1)
 			return (Array.isArray(cmdName) && 
 					cmdName[0] === 'verify' && 
-					cmdName[1] != 'status' && 
+					cmdName[1] == 'status' && 
 					cmdName.length == 3)
 		},
 		usage: "verify status <uuid>",
@@ -108,17 +107,19 @@ module.exports = function(embark) {
 			//embark.logger.info("verify status running")
 			//embark.logger.info("embark.logger", JSON.stringify(embark.logger))
 
-			let cfg = parseOptions(cmd)
+			const cmdName = cmd.match(/".*?"|\S+/g)
+
 			//embark.logger.info('cmd', cmd)
 			//embark.logger.info('cfg', JSON.stringify(cfg))
 			try {
-		        const returnCode = await mythx.getStatus(cfg, embark)
+		        const returnCode = await mythx.getStatus(cmdName[2], embark)
 		        //embark.logger.info("result", result)
 		        
 		        if (returnCode === 0) {
 		            return callback(null, "returnCode: " + returnCode)
 		        } else if (returnCode === 1) {
-		        	embark.logger.error("MythX analysis found vulnerabilities.")
+		        	//embark.logger.error("MythX analysis found vulnerabilities.")
+		        	//TODO: Fix reporting
 		            return callback()
 		        } else {
 		        	//TODO: Figure out how to use error with callback properly. 
@@ -141,6 +142,7 @@ module.exports = function(embark) {
 			{ name: 'debug', alias: 'd', type: Boolean },
 			{ name: 'no-cache-lookup', alias: 'c', type: Boolean },
 			{ name: 'limit', alias: 'l', type: Number },
+			{ name: 'initial-delay', alias: 'i', type: Number },
 			{ name: 'contracts', type: String, multiple: true, defaultOption: true }
 		]
 
