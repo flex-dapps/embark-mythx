@@ -8,7 +8,7 @@ const { MythXIssues, doReport } = require('./lib/issues2eslint');
 
 const defaultAnalyzeRateLimit = 4
 
-module.exports = async function analyse(contracts, cfg, embark) {
+async function analyse(contracts, cfg, embark) {
 
     //embark.logger.debug("embark.config", embark.config)
 
@@ -39,14 +39,34 @@ module.exports = async function analyse(contracts, cfg, embark) {
     })
     
 
-    //TODO: Check contract names provided in options are respected
-    //const contractNames = cfg._.length > 1 ? cfg._.slice(1, cfg._.length) : null
-
+    //Check contract names provided in options are respected
     //embark.logger.info("contracts", contracts)
+    //embark.logger.info("cfg.contracts", cfg.contracts)
 
-    const submitObjects = mythXUtil.buildRequestData(contracts)
+    // Filter contracts based on parameter choice
+    let toSubmit = {};
+    if(cfg.contracts) {
+        toSubmit.sources = contracts.sources
+        toSubmit.contracts = {}
+        for (let [filename, contractObjects] of Object.entries(contracts.contracts)) {
+            for (let [contractName, contract] of Object.entries(contractObjects)) {
+                if (cfg.contracts.indexOf(contractName) >= 0) {
+                    //console.log("Adding to submit", contractName, contractObjects)
+                    if(!toSubmit.contracts[filename]) {
+                        toSubmit.contracts[filename] = {}
+                    }
+                    toSubmit.contracts[filename][contractName] = contract ;
+                }
+            }
+        }
+    } else {
+        toSubmit = contracts
+    }
+        
+    //embark.logger.info("toSubmit", toSubmit)
+    const submitObjects = mythXUtil.buildRequestData(toSubmit)
 
-    process.exit(0)
+    //return 0
     const { objects, errors } = await doAnalysis(armletClient, cfg, submitObjects, null, limit)
 
     //console.log("objects", JSON.stringify(objects))
@@ -57,14 +77,42 @@ module.exports = async function analyse(contracts, cfg, embark) {
     return result
 }
 
+async function getStatus(cfg, embark) {
+
+    //embark.logger.debug("embark.config", embark.config)
+
+    //console.log("embark.logger", embark.logger)
+    //console.log("JSON.stringify(embark.logger)", JSON.stringify(embark.logger))
+    //embark.logger.info("typeof embark.logger", typeof embark.logger)
+    cfg.logger = embark.logger
+    //embark.logger.info("embark", JSON.stringify(embark))
+
+    // Connect to MythX via armlet
+    const armletClient = new armlet.Client(
+    {
+        clientToolName: "embark-mythx",
+        password: process.env.MYTHX_PASSWORD,
+        ethAddress: process.env.MYTHX_ETH_ADDRESS,
+    })
+    
+    if (cfg.uuid) {
+        try {
+            const results = await armletClient.getIssues(config.uuid);
+            return ghettoReport(embark.logger.info, results);
+        } catch (err) {
+            embark.logger.warn(err);
+            return 1;
+        }
+    }
+}
+
 const doAnalysis = async (armletClient, config, contracts, contractNames = null, limit) => {
 
     //config.logger.info("\ncontracts", contracts)
 
     const timeout = (config.timeout || 300) * 1000;
     const initialDelay = ('initial-delay' in config) ? config['initial-delay'] * 1000 : undefined;
-    //const cacheLookup = ('cache-lookup' in config) ? config['cache-lookup'] : true;
-    const cacheLookup = false
+    const cacheLookup = ('cache-lookup' in config) ? config['cache-lookup'] : true;
 
     const results = await asyncPool(limit, contracts, async buildObj => {
         
@@ -85,7 +133,7 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
 
         // request analysis to armlet.
         try {
-            //config.logger.info("analyzeOpts", JSON.stringify(analyzeOpts))
+            config.logger.info("Submitting '" + obj.contractName + "' for analysis...")
             const armletResult = await armletClient.analyzeWithStatus(analyzeOpts);
             //config.logger.info("armletResult", JSON.stringify(armletResult))
             const {issues, status} = armletResult
@@ -143,3 +191,27 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
         return accum;
     }, { errors: [], objects: [] });
 };
+
+function ghettoReport(logger, results) {
+    let issuesCount = 0;
+    results.forEach(ele => {
+        issuesCount += ele.issues.length;
+    });
+    
+    if (issuesCount === 0) {
+        logger('No issues found');
+        return 0;
+    }
+    for (const group of results) {
+        logger(group.sourceList.join(', ').underline);
+        for (const issue of group.issues) {
+            logger(yaml.safeDump(issue, {'skipInvalid': true}));
+        }
+    }
+    return 1;
+}
+
+module.exports = {
+    analyse,
+    getStatus
+}

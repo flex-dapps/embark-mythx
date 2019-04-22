@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "armlet": "^2.3.0",
+    "command-line-args": "^5.1.1",
     "dotenv": "^7.0.0",
     "eslint": "^5.16.0",
     "minimist": "^1.2.0",
