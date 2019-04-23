@@ -25,7 +25,7 @@ module.exports = function(embark) {
 					cmdName[1] != 'status' && 
 					cmdName.length >= 1)
 		},
-		usage: "verify [options]",
+		usage: "verify [options] [contracts]",
 		process: async (cmd, callback) => {
 			//embark.logger.info("cmd", cmd)
 			//embark.logger.info("verifying...")

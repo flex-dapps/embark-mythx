@@ -42,36 +42,55 @@ async function analyse(contracts, cfg, embark) {
 
     //Check contract names provided in options are respected
     //embark.logger.info("contracts", contracts)
-    //embark.logger.info("cfg.contracts", cfg.contracts)
+    embark.logger.info("cfg.contracts", cfg.contracts)
 
+    //console.log("embark.pluginConfig.ignore", embark.pluginConfig.ignore)
     // Filter contracts based on parameter choice
-    let toSubmit = {};
-    if(cfg.contracts) {
-        toSubmit.sources = contracts.sources
-        toSubmit.contracts = {}
-        for (let [filename, contractObjects] of Object.entries(contracts.contracts)) {
-            for (let [contractName, contract] of Object.entries(contractObjects)) {
+
+    let toSubmit = { "contracts": {}, "sources": contracts.sources };
+    if(!("ignore" in embark.pluginConfig)) {
+        embark.pluginConfig.ignore = []
+    }
+
+    console.log("embark.pluginConfig.ignore", JSON.stringify(embark.pluginConfig.ignore))
+    //console.log("cfg.contracts", cfg.contracts)
+    for (let [filename, contractObjects] of Object.entries(contracts.contracts)) {
+        for (let [contractName, contract] of Object.entries(contractObjects)) {
+            if(!("contracts" in cfg)) {
+                if (embark.pluginConfig.ignore.indexOf(contractName) == -1) {
+                    //console.log("Adding to submit", contractName, contractObjects)
+                    if(!toSubmit.contracts[filename]) {
+                        toSubmit.contracts[filename] = {}
+                        //toSubmit.sources[filename] = contracts.sources[filename]
+                    }
+                    toSubmit.contracts[filename][contractName] = contract;
+                }
+            } else {
                 if (cfg.contracts.indexOf(contractName) >= 0 && embark.pluginConfig.ignore.indexOf(contractName) == -1) {
                     //console.log("Adding to submit", contractName, contractObjects)
                     if(!toSubmit.contracts[filename]) {
                         toSubmit.contracts[filename] = {}
+                        //toSubmit.sources[filename] = contracts.sources[filename]
                     }
                     toSubmit.contracts[filename][contractName] = contract;
                 }
             }
         }
-    } else {
-        toSubmit = contracts
     }
+    
+    //console.log("toSubmit", JSON.stringify(toSubmit))
+    //console.log("contracts", JSON.stringify(contracts))
 
     // Stop here if no contracts are left
     if(Object.keys(toSubmit.contracts).length === 0) {
-        embark.logger.info("No contracts to submit");
+        embark.logger.info("No contracts to submit.");
         return 0;
     }
 
     //embark.logger.info("toSubmit", toSubmit)
     const submitObjects = mythXUtil.buildRequestData(toSubmit)
+
+    console.log("submitObjects", JSON.stringify(submitObjects))
 
     //return 0
     const { objects, errors } = await doAnalysis(armletClient, cfg, submitObjects, null, limit)
@@ -128,6 +147,8 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
             initialDelay
         };
 
+        console.log("obj", JSON.stringify(obj))
+
         analyzeOpts.data = mythXUtil.cleanAnalyzeDataEmptyProps(obj.buildObj, config.debug, config.logger.debug);
         analyzeOpts.data.analysisMode = config.full ? "full" : "quick";
         if (config.debug > 1) {
@@ -136,36 +157,30 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
 
         // request analysis to armlet.
         try {
+            //TODO: Call analyze/analyzeWithStatus asynchronously
             config.logger.info("Submitting '" + obj.contractName + "' for " + analyzeOpts.data.analysisMode + " analysis...")
             const {issues, status} = await armletClient.analyzeWithStatus(analyzeOpts);
-            console.log("after analyze call")
-            //config.logger.info("armletResult", JSON.stringify(armletResult))
-            //config.logger.info("issues", issues)
-            //config.logger.info("status", status)
             obj.uuid = status.uuid;
-            config.logger.info(`${analyzeOpts.data.contractName}: UUID is ${status.uuid}`);
-                
+
+            console.log("uuid", obj.uuid)
+
             if (status.status === 'Error') {
                 return [status, null];
             } else {
                 obj.setIssues(issues);
             }
+            
             return [null, obj];
         } catch (err) {
             let errStr;
             if (typeof err === 'string') {
-                // It is assumed that err should be string here.
                 errStr = `${err}`;
             } else if (typeof err.message === 'string') {
-                // If err is Error, get message property.
                 errStr = err.message;
             } else {
-                // If err is unexpected type, coerce err to inspectable format.
-                // This situation itself is not assumed, but this is for robustness and investigation.
                 errStr = `${util.inspect(err)}`;
             }
 
-            // Check error message from armlet to determine if a timeout occurred.
             if (errStr.includes('User or default timeout reached after')
                || errStr.includes('Timeout reached after')) {
                 return [(buildObj.contractName + ": ").yellow + errStr, null];
