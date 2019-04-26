@@ -1,8 +1,8 @@
-Status Embark plugin for MythX.
+#Status Embark plugin for MythX.
 
 This plugin brings MythX to Status Embark. Simply call `verify` from the Embark console and `embark-mythx` sends your contracts off for analysis. It is inspired by `truffle-security` and uses its source mapping and reporting functions.
 
-# QuickStart
+## QuickStart
 
 0. Create a `.env` file in the root of your project and provide your MythX login information. If omitted, MythX will run in trial mode.
 
@@ -29,7 +29,7 @@ embark-mythx:
 embark-mythx: MythX analysis found vulnerabilities.
 ```
 
-# Installation
+## Installation
 
 Add `embark-mythx` to the `plugins` section in your `embark.json`. To have the plugin permanently ignore one or multiple contracts, add them to the configuration:
 
@@ -41,7 +41,7 @@ Add `embark-mythx` to the `plugins` section in your `embark.json`. To have the p
 }
 ``` 
 
-# Usage
+## Usage
 
 ```
 verify [--full] [--debug] [--no-cache-lookup] [--limit] [--initial-delay] [<contracts>]
@@ -59,4 +59,17 @@ Options:
 	status <uuid>		Retrieve analysis status for given MythX UUID.
 	help			This help.
 
+```
+
+### Example Usage
+
+```
+# Quick analysis on all contracts in project
+> verify
+
+# 'ERC20' and 'Ownable' full analysis
+> verify ERC20 Ownable --full
+
+# Check status of ongoing analysis
+> verify status ef5bb083-c57a-41b0-97c1-c14a54617812
 ```
