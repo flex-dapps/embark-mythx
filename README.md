@@ -2,7 +2,14 @@ Status Embark plugin for MythX.
 
 # QuickStart
 
-Run `verify [options] [contracts]` in the Embark console. When the call returns, it will look something like this:
+0. Create a `.env` file in the root of your project and provide your MythX login information.
+
+```
+MYTHX_ETH_ADDRESS="<mythx-address>"
+MYTHX_PASSWORD="<password>"
+```
+
+1. Run `verify [options] [contracts]` in the Embark console. When the call returns, it will look something like this:
 
 ```
 Embark (development) > verify

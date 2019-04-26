@@ -7,18 +7,13 @@ module.exports = function(embark) {
 
 	// Register for compilation results
 	embark.events.on("contracts:compiled:solc", (res) => {
-		//console.log("contracts:compiled:solc", JSON.stringify(res));
 		contracts = res;
 	});
 
 	embark.registerConsoleCommand({
 		description: "Run MythX analysis",
 		matches: (cmd) => { 
-			//embark.logger.info('cmd', cmd)
 			const cmdName = cmd.match(/".*?"|\S+/g)
-			//embark.logger.info("cmdName", cmdName)
-			//embark.logger.info('cmdName.length === 1', cmdName.length === 1)
-			//embark.logger.info("eh?")
 			return (Array.isArray(cmdName) && 
 					cmdName[0] === 'verify' && 
 					cmdName[1] != 'help' && 
@@ -27,25 +22,16 @@ module.exports = function(embark) {
 		},
 		usage: "verify [options] [contracts]",
 		process: async (cmd, callback) => {
-			//embark.logger.info("cmd", cmd)
-			//embark.logger.info("verifying...")
 
 			const cmdName = cmd.match(/".*?"|\S+/g)
 			// Remove first element, as we know it's the command
 			cmdName.shift()
 
-			//embark.logger.info("embark.logger", JSON.stringify(embark.logger))
-
-			//console.log("option object", JSON.stringify({ "argv": cmdName }))
 			let cfg = parseOptions({ "argv": cmdName })
-
-			//embark.logger.info('cmd', cmdName)
-			//embark.logger.info('cfg', JSON.stringify(cfg))
 
 			try {
 				embark.logger.info("Running MythX analysis in background.")
 		        const returnCode = await mythx.analyse(contracts, cfg, embark)
-		        //embark.logger.info("result", result)
 		        
 		        if (returnCode === 0) {
 		            return callback(null, "MythX analysis found no vulnerabilities.")
@@ -57,7 +43,6 @@ module.exports = function(embark) {
 		            return callback(new Error("\nUnexpected Error: return value of `analyze` should be either 0 or 1."), null)
 		        }
 		    } catch (e) {
-		    	embark.logger.error("error", e)
 		        return callback(e, "ERR: " + e.message)
 		    }
 		}
@@ -66,37 +51,41 @@ module.exports = function(embark) {
 	embark.registerConsoleCommand({
 		description: "Help",
 		matches: (cmd) => { 
-			//embark.logger.info('cmd', cmd)
 			const cmdName = cmd.match(/".*?"|\S+/g)
-			//embark.logger.info('cmdName', cmdName)
-			//embark.logger.info("cmdName[0] === 'verify' && cmdName[1] === 'help'", cmdName[0] === 'verify' && cmdName[1] === 'help')
 			return (Array.isArray(cmdName) &&
 					(cmdName[0] === 'verify' && 
 					cmdName[1] === 'help'))
 		},
 		usage: "verify help",
 		process: (cmd, callback) => {
-			embark.logger.info("verify help running")
 			return callback(null, help())
 		}
 	})
 
 	function help() {
 		return (
-			"Usage: ...\n" +
+			"Usage:\n" +
+			"\tverify [--full] [--debug] [--no-cache-lookup] [--limit] [--initial-delay] [<contracts>]\n" +
+			"\tverify status <uuid>\n" +
+			"\tverify help\n" +
 			"\n" + 
-			"Commands:\n" + 
-			"\thelp\t\tThis help."
+			"Options:\n" + 
+			"\t--full\t\t\tPerform full rather than quick analysis.\n" + 
+			"\t--debug\t\t\tAdditional debug output.\n" + 
+			"\t--no-cache-lookup\tSkip MythX-side cache lookup of report.\n" +
+			"\t--limit\t\t\tMaximum number of concurrent analyses.\n" + 
+			"\t--initial-delay\t\tTime in seconds before first analysis status check.\n" + 
+			"\n" + 
+			"\t[<contracts>]\t\tList of contracts to submit for analysis (default: all).\n" + 
+			"\tstatus <uuid>\t\tRetrieve analysis status for given MythX UUID.\n" + 
+			"\thelp\t\t\tThis help.\n"
 		)
 	}
 
 	embark.registerConsoleCommand({
 		description: "Check MythX analysis status",
 		matches: (cmd) => { 
-			//embark.logger.info('cmd', cmd)
 			const cmdName = cmd.match(/".*?"|\S+/g)
-			//embark.logger.info("cmdName", cmdName)
-			//embark.logger.info('cmdName.length === 1', cmdName.length === 1)
 			return (Array.isArray(cmdName) && 
 					cmdName[0] === 'verify' && 
 					cmdName[1] == 'status' && 
@@ -104,39 +93,25 @@ module.exports = function(embark) {
 		},
 		usage: "verify status <uuid>",
 		process: async (cmd, callback) => {
-			//embark.logger.info("verify status running")
-			//embark.logger.info("embark.logger", JSON.stringify(embark.logger))
-
 			const cmdName = cmd.match(/".*?"|\S+/g)
 
-			//embark.logger.info('cmd', cmd)
-			//embark.logger.info('cfg', JSON.stringify(cfg))
 			try {
 		        const returnCode = await mythx.getStatus(cmdName[2], embark)
-		        //embark.logger.info("result", result)
 		        
 		        if (returnCode === 0) {
 		            return callback(null, "returnCode: " + returnCode)
 		        } else if (returnCode === 1) {
-		        	//embark.logger.error("MythX analysis found vulnerabilities.")
-		        	//TODO: Fix reporting
 		            return callback()
 		        } else {
-		        	//TODO: Figure out how to use error with callback properly. 
 		            return callback(new Error("Unexpected Error: return value of `analyze` should be either 0 or 1."), null)
 		        }
-		        
 		    } catch (e) {
-		    	embark.logger.error("error", e)
 		        return callback(e, "ERR: " + e.message)
 		    }
 		}
 	})
 
 	function parseOptions(options) {
-
-		//console.log("options", JSON.stringify(options))
-
 		const optionDefinitions = [
 			{ name: 'full', alias: 'f', type: Boolean },
 			{ name: 'debug', alias: 'd', type: Boolean },
@@ -148,14 +123,10 @@ module.exports = function(embark) {
 
 		const parsed = commandLineArgs(optionDefinitions, options)
 
-		//console.log("parsed", JSON.stringify(parsed))
-		//console.log("parsed.contracts", parsed.contracts)
-		//console.log("parsed.full", parsed.full)	
-
 		if(parsed.full) {
 			parsed.analysisMode = "full"
 		} else {
-			parsed.analysisMode = "full"
+			parsed.analysisMode = "quick"
 		}
 
 		return parsed
