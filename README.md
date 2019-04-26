@@ -1,8 +1,10 @@
 Status Embark plugin for MythX.
 
+This plugin brings MythX to Status Embark. Simply call `verify` from the Embark console and `embark-mythx` sends your contracts off for analysis. It is inspired by `truffle-security` and uses its source mapping and reporting functions.
+
 # QuickStart
 
-0. Create a `.env` file in the root of your project and provide your MythX login information.
+0. Create a `.env` file in the root of your project and provide your MythX login information. If omitted, MythX will run in trial mode.
 
 ```
 MYTHX_ETH_ADDRESS="<mythx-address>"
@@ -29,7 +31,7 @@ embark-mythx: MythX analysis found vulnerabilities.
 
 # Installation
 
-Add `embark-mythx` to the `plugins` section in your `embark.json`. To have the plugin permanently ignore one or multiple contracts, add them as array `ignore` to the configuration:
+Add `embark-mythx` to the `plugins` section in your `embark.json`. To have the plugin permanently ignore one or multiple contracts, add them to the configuration:
 
 ```
 "plugins": {
@@ -39,15 +41,22 @@ Add `embark-mythx` to the `plugins` section in your `embark.json`. To have the p
 }
 ``` 
 
-# Parameters
+# Usage
 
-`contracts` (optional) -- List of contracts to submit. 
+```
+verify [--full] [--debug] [--no-cache-lookup] [--limit] [--initial-delay] [<contracts>]
+verify status <uuid>
+verify help
 
+Options:
+	--full			Perform full rather than quick analysis.
+	--debug			Additional debug output.
+	--no-cache-lookup	Skip MythX-side cache lookup of report.
+	--limit			Maximum number of concurrent analyses.
+	--initial-delay		Time in seconds before first analysis status check.
 
-# Options
+	[<contracts>]		List of contracts to submit for analysis (default: all).
+	status <uuid>		Retrieve analysis status for given MythX UUID.
+	help			This help.
 
-`--full`, `-f` -- run full analysis instead of quick.
-`--debug`, `-d` -- print additional output.
-`no-cache-lookup`, `-c` -- Resubmit contracts, ignore cached results.
-`limit`, `-l` -- Number of analyses submitted at a time.
-`initial-delay`, `-i` -- Time before first status request.
+```
