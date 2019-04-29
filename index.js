@@ -70,15 +70,15 @@ module.exports = function(embark) {
 			"\tverify help\n" +
 			"\n" + 
 			"Options:\n" + 
-			"\t--full\t\t\tPerform full rather than quick analysis.\n" + 
-			"\t--debug\t\t\tAdditional debug output.\n" + 
-			"\t--no-cache-lookup\tSkip MythX-side cache lookup of report.\n" +
-			"\t--limit\t\t\tMaximum number of concurrent analyses.\n" + 
-			"\t--initial-delay\t\tTime in seconds before first analysis status check.\n" + 
+			"\t--full, -f\t\t\tPerform full rather than quick analysis.\n" + 
+			"\t--debug, -d\t\t\tAdditional debug output.\n" + 
+			"\t--no-cache-lookup, -c\t\tSkip MythX-side cache lookup of report.\n" +
+			"\t--limit, -l\t\t\tMaximum number of concurrent analyses.\n" + 
+			"\t--initial-delay, -i\t\tTime in seconds before first analysis status check.\n" + 
 			"\n" + 
-			"\t[<contracts>]\t\tList of contracts to submit for analysis (default: all).\n" + 
-			"\tstatus <uuid>\t\tRetrieve analysis status for given MythX UUID.\n" + 
-			"\thelp\t\t\tThis help.\n"
+			"\t[<contracts>]\t\t\tList of contracts to submit for analysis (default: all).\n" + 
+			"\tstatus <uuid>\t\t\tRetrieve analysis status for given MythX UUID.\n" + 
+			"\thelp\t\t\t\tThis help.\n"
 		)
 	}
 

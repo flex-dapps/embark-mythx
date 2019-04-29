@@ -51,11 +51,11 @@ verify status <uuid>
 verify help
 
 Options:
-	--full			Perform full instead of quick analysis.
-	--debug			Additional debug output.
-	--no-cache-lookup	Skip MythX-side cache lookup of report.
-	--limit			Maximum number of concurrent analyses.
-	--initial-delay		Time in seconds before first analysis status check.
+	--full, -f				Perform full instead of quick analysis.
+	--debug, -d				Additional debug output.
+	--no-cache-lookup, -c	Skip MythX-side cache lookup of report.
+	--limit, -l				Maximum number of concurrent analyses.
+	--initial-delay, -i		Time in seconds before first analysis status check.
 
 	[<contracts>]		List of contracts to submit for analysis (default: all).
 	status <uuid>		Retrieve analysis status for given MythX UUID.
