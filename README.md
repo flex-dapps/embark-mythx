@@ -33,7 +33,7 @@ embark-mythx: MythX analysis found vulnerabilities.
 
 ## Installation
 
-Add `embark-mythx` to the `plugins` section in your `embark.json`. To have the plugin permanently ignore one or multiple contracts, add them to the configuration:
+Add `embark-mythx` to the `plugins` section of your `embark.json` file. To have the plugin permanently ignore one or multiple contracts, add them to the configuration:
 
 ```json
 "plugins": {
@@ -51,7 +51,7 @@ verify status <uuid>
 verify help
 
 Options:
-	--full			Perform full rather than quick analysis.
+	--full			Perform full instead of quick analysis.
 	--debug			Additional debug output.
 	--no-cache-lookup	Skip MythX-side cache lookup of report.
 	--limit			Maximum number of concurrent analyses.
@@ -72,6 +72,6 @@ Options:
 # 'ERC20' and 'Ownable' full analysis
 > verify ERC20 Ownable --full
 
-# Check status of ongoing analysis
+# Check status of previous or ongoing analysis
 > verify status ef5bb083-c57a-41b0-97c1-c14a54617812
 ```
