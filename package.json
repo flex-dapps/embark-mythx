@@ -11,7 +11,7 @@
     "embark-plugin;"
   ],
   "author": "sebastian@flexdapps.com",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "armlet": "^2.3.0",
     "command-line-args": "^5.1.1",
