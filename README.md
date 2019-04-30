@@ -6,14 +6,14 @@ This plugin brings MythX to Status Embark. Simply call `verify` from the Embark 
 
 ## QuickStart
 
-0. Create a `.env` file in the root of your project and provide your MythX login information. If omitted, MythX will run in trial mode.
+1. Create a `.env` file in the root of your project and provide your MythX login information. If omitted, MythX will run in trial mode.
 
 ```json
 MYTHX_ETH_ADDRESS="<mythx-address>"
 MYTHX_PASSWORD="<password>"
 ```
 
-1. Run `verify [options] [contracts]` in the Embark console. When the call returns, it will look something like this:
+2. Run `verify [options] [contracts]` in the Embark console. When the call returns, it will look something like this:
 
 ```bash
 Embark (development) > verify
@@ -33,7 +33,15 @@ embark-mythx: MythX analysis found vulnerabilities.
 
 ## Installation
 
-Add `embark-mythx` to the `plugins` section of your `embark.json` file. To have the plugin permanently ignore one or multiple contracts, add them to the configuration:
+0. Install this plugin from the root of your Embark project:
+
+```bash
+$ npm i embark-mythx
+# or
+$ npm i flex-dapps/embark-mythx
+```
+
+1. Add `embark-mythx` to the `plugins` section of your `embark.json` file. To have the plugin permanently ignore one or multiple contracts, add them to the configuration:
 
 ```json
 "plugins": {
@@ -67,11 +75,11 @@ Options:
 
 ```bash
 # Quick analysis on all contracts in project
-> verify
+$ verify
 
 # 'ERC20' and 'Ownable' full analysis
-> verify ERC20 Ownable --full
+$ verify ERC20 Ownable --full
 
 # Check status of previous or ongoing analysis
-> verify status ef5bb083-c57a-41b0-97c1-c14a54617812
+$ verify status ef5bb083-c57a-41b0-97c1-c14a54617812
 ```
