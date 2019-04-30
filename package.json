@@ -1,14 +1,19 @@
 {
   "name": "embark-mythx",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MythX plugin for Status Embark",
+  "repository": "github:flex-dapps/embark-mythx",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "embark;",
-    "embark-plugin;"
+    "embark",
+    "embark-plugin",
+    "mythx",
+    "smart contract",
+    "security analysis",
+    "solidity"
   ],
   "author": "sebastian@flexdapps.com",
   "license": "MIT",
