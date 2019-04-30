@@ -1,6 +1,6 @@
 {
   "name": "embark-mythx",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "MythX plugin for Status Embark",
   "repository": "github:flex-dapps/embark-mythx",
   "main": "index.js",
