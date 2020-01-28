@@ -101,7 +101,6 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
 
     const timeout = (config.timeout || 300) * 1000;
     const initialDelay = ('initial-delay' in config) ? config['initial-delay'] * 1000 : undefined;
-    const noCacheLookup = ('no-cache-lookup' in config) ? config['no-cache-lookup'] : true;
 
     const results = await asyncPool(limit, contracts, async buildObj => {
         
@@ -109,7 +108,6 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
 
         let analyzeOpts = {
             clientToolName: 'embark-mythx',
-            noCacheLookup,
             timeout,
             initialDelay
         };
@@ -135,6 +133,7 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
             
             return [null, obj];
         } catch (err) {
+            //console.log("catch", JSON.stringify(err));
             let errStr;
             if (typeof err === 'string') {
                 errStr = `${err}`;

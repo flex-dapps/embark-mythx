@@ -57,14 +57,13 @@ $ npm i flex-dapps/embark-mythx
 ## Usage
 
 ```bash
-verify [--full] [--debug] [--no-cache-lookup] [--limit] [--initial-delay] [<contracts>]
+verify [--full] [--debug] [--limit] [--initial-delay] [<contracts>]
 verify status <uuid>
 verify help
 
 Options:
-	--full, -f		Perform full instead of quick analysis.
+	--full, -f		Perform full instead of quick analysis (not available on free MythX tier).
 	--debug, -d		Additional debug output.
-	--no-cache-lookup, -c	Skip MythX-side cache lookup of report.
 	--limit, -l		Maximum number of concurrent analyses.
 	--initial-delay, -i	Time in seconds before first analysis status check.
 

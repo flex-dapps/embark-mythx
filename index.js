@@ -65,14 +65,13 @@ module.exports = function(embark) {
 	function help() {
 		return (
 			"Usage:\n" +
-			"\tverify [--full] [--debug] [--no-cache-lookup] [--limit] [--initial-delay] [<contracts>]\n" +
+			"\tverify [--full] [--debug] [--limit] [--initial-delay] [<contracts>]\n" +
 			"\tverify status <uuid>\n" +
 			"\tverify help\n" +
 			"\n" + 
 			"Options:\n" + 
 			"\t--full, -f\t\t\tPerform full rather than quick analysis.\n" + 
 			"\t--debug, -d\t\t\tAdditional debug output.\n" + 
-			"\t--no-cache-lookup, -c\t\tSkip MythX-side cache lookup of report.\n" +
 			"\t--limit, -l\t\t\tMaximum number of concurrent analyses.\n" + 
 			"\t--initial-delay, -i\t\tTime in seconds before first analysis status check.\n" + 
 			"\n" + 
@@ -115,7 +114,6 @@ module.exports = function(embark) {
 		const optionDefinitions = [
 			{ name: 'full', alias: 'f', type: Boolean },
 			{ name: 'debug', alias: 'd', type: Boolean },
-			{ name: 'no-cache-lookup', alias: 'c', type: Boolean },
 			{ name: 'limit', alias: 'l', type: Number },
 			{ name: 'initial-delay', alias: 'i', type: Number },
 			{ name: 'contracts', type: String, multiple: true, defaultOption: true }
