@@ -90,7 +90,7 @@ async function getStatus(uuid, embark) {
     
     try {
         const results = await armletClient.getIssues(uuid);
-        return ghettoReport(embark.logger.info, results);
+        return ghettoReport(embark.logger, results);
     } catch (err) {
         embark.logger.warn(err);
         return 1;
@@ -171,13 +171,13 @@ function ghettoReport(logger, results) {
     });
     
     if (issuesCount === 0) {
-        logger('No issues found');
+        logger.info('No issues found');
         return 0;
     }
     for (const group of results) {
-        logger(group.sourceList.join(', ').underline);
+        logger.info(group.sourceList.join(', ').underline);
         for (const issue of group.issues) {
-            logger(yaml.safeDump(issue, {'skipInvalid': true}));
+            logger.info(yaml.safeDump(issue, {'skipInvalid': true}));
         }
     }
     return 1;
