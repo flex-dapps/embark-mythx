@@ -25,18 +25,21 @@ async function analyse(contracts, cfg, embark) {
         return 1
     }
 
+    if (process.env.MYTHX_ETH_ADDRESS) {
+        process.env.MYTHX_USERNAME = process.env.MYTHX_ETH_ADDRESS;
+        embark.logger.warn("The environment variable MYTHX_ETH_ADDRESS in favour of MYTHX_USERNAME and will be removed in future versions. Please update your .env file or your environment variables accordingly.");
+    }
+
     // Connect to MythX via armlet
-    if(!process.env.MYTHX_ETH_ADDRESS || !process.env.MYTHX_PASSWORD) {
-        embark.logger.error("Environment variables 'MYTHX_ETH_ADDRESS' and 'MYTHX_PASSWORD' not found. Continuing in evaluation mode.")
-        process.env.MYTHX_ETH_ADDRESS = "0x0000000000000000000000000000000000000000"
-        process.env.MYTHX_PASSWORD = "trial"
+    if(!process.env.MYTHX_USERNAME || !process.env.MYTHX_PASSWORD) {
+        throw new Error("Environment variables 'MYTHX_USERNAME' and 'MYTHX_PASSWORD' not found. Place these in a .env file in the root of your &ETH;App, add them in the CLI command, ie 'MYTHX_USERNAME=xyz MYTHX_PASSWORD=123 embark run', or add them to your system's environment variables.");
     }
 
     const armletClient = new armlet.Client(
     {
         clientToolName: "embark-mythx",
         password: process.env.MYTHX_PASSWORD,
-        ethAddress: process.env.MYTHX_ETH_ADDRESS,
+        ethAddress: process.env.MYTHX_USERNAME,
     })
     
     // Filter contracts based on parameter choice
@@ -85,7 +88,7 @@ async function getStatus(uuid, embark) {
     {
         clientToolName: "embark-mythx",
         password: process.env.MYTHX_PASSWORD,
-        ethAddress: process.env.MYTHX_ETH_ADDRESS,
+        ethAddress: process.env.MYTHX_USERNAME,
     })
     
     try {

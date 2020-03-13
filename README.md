@@ -9,12 +9,21 @@ This plugin brings MythX to Status Embark. Simply call `verify` from the Embark 
 
 ## QuickStart
 
-1. Create a `.env` file in the root of your project and provide your MythX login information. If omitted, MythX will run in trial mode.
+1. Create a `.env` file in the root of your project and provide your MythX login information. Free MythX accounts can be created at https://dashboard.mythx.io/#/registration.
 
 ```json
-MYTHX_ETH_ADDRESS="<mythx-address>"
+MYTHX_USERNAME="<mythx-username>"
 MYTHX_PASSWORD="<password>"
 ```
+
+> **NOTE:** `MYTHX_ETH_ADDRESS` in favour of `MYTHX_USERNAME` and will be removed in future versions. Please update your .env file or your environment variables accordingly. 
+
+`MYTHX_USERNAME` may be either of:
+* MythX User ID (assigned by MythX API to any registered user);
+* Ethereum address, if user account is associated with an address;
+* A verified email address, if the user account is associated with an email address, and that address has been verified by visiting the verification link in the verification email sent by the MythX API each time when user email is set or modified in the MythX settings.
+
+For more information, please see the [MythX API Login documentation](https://api.mythx.io/v1/openapi#operation/login).
 
 2. Run `verify [options] [contracts]` in the Embark console. When the call returns, it will look something like this:
 
