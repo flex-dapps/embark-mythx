@@ -16,7 +16,7 @@ MYTHX_USERNAME="<mythx-username>"
 MYTHX_PASSWORD="<password>"
 ```
 
-> **NOTE:** `MYTHX_ETH_ADDRESS` in favour of `MYTHX_USERNAME` and will be removed in future versions. Please update your .env file or your environment variables accordingly. 
+> **NOTE:** `MYTHX_ETH_ADDRESS` has been deprecated in favour of `MYTHX_USERNAME` and will be removed in future versions. Please update your .env file or your environment variables accordingly. 
 
 `MYTHX_USERNAME` may be either of:
 * MythX User ID (assigned by MythX API to any registered user);

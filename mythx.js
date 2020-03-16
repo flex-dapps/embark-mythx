@@ -40,30 +40,30 @@ async function analyse(contracts, cfg, embark) {
     checkEnvVariables(embark);
 
     const armletClient = new armlet.Client(
-    {
-        clientToolName: "embark-mythx",
-        password: process.env.MYTHX_PASSWORD,
-        ethAddress: process.env.MYTHX_USERNAME,
-    })
-    
+        {
+            clientToolName: "embark-mythx",
+            password: process.env.MYTHX_PASSWORD,
+            ethAddress: process.env.MYTHX_USERNAME,
+        })
+
     // Filter contracts based on parameter choice
     let toSubmit = { "contracts": {}, "sources": contracts.sources };
-    if(!("ignore" in embark.pluginConfig)) {
+    if (!("ignore" in embark.pluginConfig)) {
         embark.pluginConfig.ignore = []
     }
 
     for (let [filename, contractObjects] of Object.entries(contracts.contracts)) {
         for (let [contractName, contract] of Object.entries(contractObjects)) {
-            if(!("contracts" in cfg)) {
+            if (!("contracts" in cfg)) {
                 if (embark.pluginConfig.ignore.indexOf(contractName) == -1) {
-                    if(!toSubmit.contracts[filename]) {
+                    if (!toSubmit.contracts[filename]) {
                         toSubmit.contracts[filename] = {}
                     }
                     toSubmit.contracts[filename][contractName] = contract;
                 }
             } else {
                 if (cfg.contracts.indexOf(contractName) >= 0 && embark.pluginConfig.ignore.indexOf(contractName) == -1) {
-                    if(!toSubmit.contracts[filename]) {
+                    if (!toSubmit.contracts[filename]) {
                         toSubmit.contracts[filename] = {}
                     }
                     toSubmit.contracts[filename][contractName] = contract;
@@ -71,9 +71,9 @@ async function analyse(contracts, cfg, embark) {
             }
         }
     }
-    
+
     // Stop here if no contracts are left
-    if(Object.keys(toSubmit.contracts).length === 0) {
+    if (Object.keys(toSubmit.contracts).length === 0) {
         embark.logger.info("No contracts to submit.");
         return 0;
     }
@@ -114,7 +114,7 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
     const initialDelay = ('initial-delay' in config) ? config['initial-delay'] * 1000 : undefined;
 
     const results = await asyncPool(limit, contracts, async buildObj => {
-        
+
         const obj = new MythXIssues(buildObj, config);
 
         let analyzeOpts = {
@@ -123,17 +123,17 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
             initialDelay
         };
 
-        analyzeOpts.data = mythXUtil.cleanAnalyzeDataEmptyProps(obj.buildObj, config.debug, config.logger.debug);
+        analyzeOpts.data = mythXUtil.cleanAnalyzeDataEmptyProps(obj.buildObj, config.debug, config.logger);
         analyzeOpts.data.analysisMode = config.full ? "full" : "quick";
         if (config.debug > 1) {
-            config.logger.debug("analyzeOpts: " + `${util.inspect(analyzeOpts, {depth: null})}`);
+            config.logger.debug("analyzeOpts: " + `${util.inspect(analyzeOpts, { depth: null })}`);
         }
 
         // request analysis to armlet.
         try {
             //TODO: Call analyze/analyzeWithStatus asynchronously
             config.logger.info("Submitting '" + obj.contractName + "' for " + analyzeOpts.data.analysisMode + " analysis...")
-            const {issues, status} = await armletClient.analyzeWithStatus(analyzeOpts);
+            const { issues, status } = await armletClient.analyzeWithStatus(analyzeOpts);
             obj.uuid = status.uuid;
 
             if (status.status === 'Error') {
@@ -141,7 +141,7 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
             } else {
                 obj.setIssues(issues);
             }
-            
+
             return [null, obj];
         } catch (err) {
             //console.log("catch", JSON.stringify(err));
@@ -155,7 +155,7 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
             }
 
             if (errStr.includes('User or default timeout reached after')
-               || errStr.includes('Timeout reached after')) {
+                || errStr.includes('Timeout reached after')) {
                 return [(buildObj.contractName + ": ").yellow + errStr, null];
             } else {
                 return [(buildObj.contractName + ": ").red + errStr, null];
@@ -165,7 +165,7 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
     });
 
     return results.reduce((accum, curr) => {
-        const [ err, obj ] = curr;
+        const [err, obj] = curr;
         if (err) {
             accum.errors.push(err);
         } else if (obj) {
@@ -180,7 +180,7 @@ function ghettoReport(logger, results) {
     results.forEach(ele => {
         issuesCount += ele.issues.length;
     });
-    
+
     if (issuesCount === 0) {
         logger.info('No issues found');
         return 0;
@@ -188,7 +188,7 @@ function ghettoReport(logger, results) {
     for (const group of results) {
         logger.info(group.sourceList.join(', ').underline);
         for (const issue of group.issues) {
-            logger.info(yaml.safeDump(issue, {'skipInvalid': true}));
+            logger.info(yaml.safeDump(issue, { 'skipInvalid': true }));
         }
     }
     return 1;
