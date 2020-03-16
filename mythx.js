@@ -115,7 +115,7 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
             initialDelay
         };
 
-        analyzeOpts.data = mythXUtil.cleanAnalyzeDataEmptyProps(obj.buildObj, config.debug, config.logger.debug);
+        analyzeOpts.data = mythXUtil.cleanAnalyzeDataEmptyProps(obj.buildObj, config.debug, config.logger);
         analyzeOpts.data.analysisMode = config.full ? "full" : "quick";
         if (config.debug > 1) {
             config.logger.debug("analyzeOpts: " + `${util.inspect(analyzeOpts, { depth: null })}`);
