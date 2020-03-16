@@ -96,9 +96,9 @@ async function getStatus(uuid, embark) {
             password: process.env.MYTHX_PASSWORD,
             ethAddress: process.env.MYTHX_USERNAME,
         });
-    
+
     await armletClient.login();
-    
+
     try {
         const results = await armletClient.getIssues(uuid.toLowerCase());
         return ghettoReport(embark.logger, results);
@@ -135,6 +135,7 @@ const doAnalysis = async (armletClient, config, contracts, contractNames = null,
             config.logger.info("Submitting '" + obj.contractName + "' for " + analyzeOpts.data.analysisMode + " analysis...")
             const { issues, status } = await armletClient.analyzeWithStatus(analyzeOpts);
             obj.uuid = status.uuid;
+            obj.groupId = status.groupId;
 
             if (status.status === 'Error') {
                 return [status, null];
