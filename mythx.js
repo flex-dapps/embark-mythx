@@ -9,6 +9,18 @@ const { MythXIssues, doReport } = require('./lib/issues2eslint');
 
 const defaultConcurrentAnalyses = 4
 
+function checkEnvVariables(embark) {
+    if (process.env.MYTHX_ETH_ADDRESS) {
+        process.env.MYTHX_USERNAME = process.env.MYTHX_ETH_ADDRESS;
+        embark.logger.warn("The environment variable MYTHX_ETH_ADDRESS has been deprecated in favour of MYTHX_USERNAME and will be removed in future versions. Please update your .env file or your environment variables accordingly.");
+    }
+
+    // Connect to MythX via armlet
+    if (!process.env.MYTHX_USERNAME || !process.env.MYTHX_PASSWORD) {
+        throw new Error("Environment variables 'MYTHX_USERNAME' and 'MYTHX_PASSWORD' not found. Place these in a .env file in the root of your &ETH;App, add them in the CLI command, ie 'MYTHX_USERNAME=xyz MYTHX_PASSWORD=123 embark run', or add them to your system's environment variables.");
+    }
+}
+
 async function analyse(contracts, cfg, embark) {
 
     cfg.logger = embark.logger
@@ -25,15 +37,7 @@ async function analyse(contracts, cfg, embark) {
         return 1
     }
 
-    if (process.env.MYTHX_ETH_ADDRESS) {
-        process.env.MYTHX_USERNAME = process.env.MYTHX_ETH_ADDRESS;
-        embark.logger.warn("The environment variable MYTHX_ETH_ADDRESS in favour of MYTHX_USERNAME and will be removed in future versions. Please update your .env file or your environment variables accordingly.");
-    }
-
-    // Connect to MythX via armlet
-    if(!process.env.MYTHX_USERNAME || !process.env.MYTHX_PASSWORD) {
-        throw new Error("Environment variables 'MYTHX_USERNAME' and 'MYTHX_PASSWORD' not found. Place these in a .env file in the root of your &ETH;App, add them in the CLI command, ie 'MYTHX_USERNAME=xyz MYTHX_PASSWORD=123 embark run', or add them to your system's environment variables.");
-    }
+    checkEnvVariables(embark);
 
     const armletClient = new armlet.Client(
     {
@@ -83,16 +87,20 @@ async function analyse(contracts, cfg, embark) {
 
 async function getStatus(uuid, embark) {
 
+    checkEnvVariables(embark);
+
     // Connect to MythX via armlet
     const armletClient = new armlet.Client(
-    {
-        clientToolName: "embark-mythx",
-        password: process.env.MYTHX_PASSWORD,
-        ethAddress: process.env.MYTHX_USERNAME,
-    })
+        {
+            clientToolName: "embark-mythx",
+            password: process.env.MYTHX_PASSWORD,
+            ethAddress: process.env.MYTHX_USERNAME,
+        });
+    
+    await armletClient.login();
     
     try {
-        const results = await armletClient.getIssues(uuid);
+        const results = await armletClient.getIssues(uuid.toLowerCase());
         return ghettoReport(embark.logger, results);
     } catch (err) {
         embark.logger.warn(err);
