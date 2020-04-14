@@ -20,6 +20,7 @@ This plugin brings MythX to Status Embark. Simply call `verify` from the Embark 
 > ## Repository has [moved](https://github.com/embarklabs/embark-mythx)
 >
 > This repository is no longer maintained. `embark-mythx` is now under the care of [Embark Labs](https://github.com/embarklabs/embark-mythx).
+>
 > 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
 
 ## QuickStart
