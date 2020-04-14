@@ -3,6 +3,7 @@
 > ## Repository has [moved](https://github.com/embarklabs/embark-mythx)
 >
 > This repository is no longer maintained. `embark-mythx` is now under the care of [Embark Labs](https://github.com/embarklabs/embark-mythx).
+>
 > 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
 
 ![Running MythX analyses in Status Embark](https://cdn-images-1.medium.com/max/960/1*7jwHRc5J152bz704Fg7iug.png)
