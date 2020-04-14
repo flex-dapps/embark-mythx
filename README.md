@@ -1,3 +1,10 @@
+> 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
+>
+> ## Repository has [moved](https://github.com/embarklabs/embark-mythx)
+>
+> This repository is no longer maintained. `embark-mythx` is now under the care of [Embark Labs](https://github.com/embarklabs/embark-mythx).
+> 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
+
 ![Running MythX analyses in Status Embark](https://cdn-images-1.medium.com/max/960/1*7jwHRc5J152bz704Fg7iug.png)
 
 [![GitHub license](https://img.shields.io/github/license/flex-dapps/embark-mythx.svg)](https://github.com/flex-dapps/embark-mythx/blob/master/LICENSE)
@@ -6,6 +13,13 @@
 # Status Embark plugin for MythX.
 
 This plugin brings MythX to Status Embark. Simply call `verify` from the Embark console and `embark-mythx` sends your contracts off for analysis. It is inspired by `truffle-security` and uses its source mapping and reporting functions.
+
+> 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
+>
+> ## Repository has [moved](https://github.com/embarklabs/embark-mythx)
+>
+> This repository is no longer maintained. `embark-mythx` is now under the care of [Embark Labs](https://github.com/embarklabs/embark-mythx).
+> 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
 
 ## QuickStart
 
@@ -16,12 +30,13 @@ MYTHX_USERNAME="<mythx-username>"
 MYTHX_PASSWORD="<password>"
 ```
 
-> **NOTE:** `MYTHX_ETH_ADDRESS` has been deprecated in favour of `MYTHX_USERNAME` and will be removed in future versions. Please update your .env file or your environment variables accordingly. 
+> **NOTE:** `MYTHX_ETH_ADDRESS` has been deprecated in favour of `MYTHX_USERNAME` and will be removed in future versions. Please update your .env file or your environment variables accordingly.
 
 `MYTHX_USERNAME` may be either of:
-* MythX User ID (assigned by MythX API to any registered user);
-* Ethereum address, if user account is associated with an address;
-* A verified email address, if the user account is associated with an email address, and that address has been verified by visiting the verification link in the verification email sent by the MythX API each time when user email is set or modified in the MythX settings.
+
+- MythX User ID (assigned by MythX API to any registered user);
+- Ethereum address, if user account is associated with an address;
+- A verified email address, if the user account is associated with an email address, and that address has been verified by visiting the verification link in the verification email sent by the MythX API each time when user email is set or modified in the MythX settings.
 
 For more information, please see the [MythX API Login documentation](https://api.mythx.io/v1/openapi#operation/login).
 
@@ -34,7 +49,7 @@ embark-mythx: Submitting 'ERC20' for analysis...
 embark-mythx: Submitting 'SafeMath' for analysis...
 embark-mythx: Submitting 'Ownable' for analysis...
 
-embark-mythx: 
+embark-mythx:
 /home/flex/mythx-plugin/testToken/.embark/contracts/ERC20.sol
   1:0  warning  A floating pragma is set  SWC-103
 
@@ -61,7 +76,7 @@ $ npm i flex-dapps/embark-mythx
     "ignore": ["Ownable", "Migrations"]
   }
 }
-``` 
+```
 
 ## Usage
 
